@@ -11,10 +11,12 @@ import {
 
 export default function KelolaAkun() {
   const [users, setUsers] = useState([]);
+  const [wilayah, setWilayah] = useState([]);
   const [search, setSearch] = useState("");
 
   useEffect(() => {
     getUsers();
+    getWilayah();
   }, []);
 
   const [showModal, setShowModal] = useState(false);
@@ -24,6 +26,7 @@ export default function KelolaAkun() {
     email: "",
     password: "",
     role: "ba",
+    id_wilayah: "",
     is_active: 1,
   });
   const [editId, setEditId] = useState(null);
@@ -36,9 +39,9 @@ export default function KelolaAkun() {
       email: user.email,
       password: "",
       role: user.role,
+      id_wilayah: user.id_wilayah || "",
       is_active: user.is_active,
     });
-
     setShowModal(true);
   };
 
@@ -85,6 +88,20 @@ export default function KelolaAkun() {
     }
   };
 
+  const getWilayah = async () => {
+    try {
+      const response = await fetch("http://localhost:5000/api/wilayah");
+
+      const result = await response.json();
+
+      if (result.success) {
+        setWilayah(result.data);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   const filteredUsers = users.filter((user) => {
     return (
       user.nama.toLowerCase().includes(search.toLowerCase()) ||
@@ -123,6 +140,7 @@ export default function KelolaAkun() {
           email: "",
           password: "",
           role: "ba",
+          id_wilayah: "",
           is_active: 1,
         });
 
@@ -212,15 +230,24 @@ export default function KelolaAkun() {
                   <th className="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">
                     Nama Pengguna
                   </th>
+
                   <th className="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">
                     Email
                   </th>
+
                   <th className="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">
                     Role
                   </th>
+
+                  {/* TAMBAHKAN INI */}
+                  <th className="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">
+                    Wilayah
+                  </th>
+
                   <th className="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">
                     Status
                   </th>
+
                   <th className="px-6 py-4 text-center text-xs font-bold text-gray-400 uppercase tracking-wider">
                     Aksi
                   </th>
@@ -270,6 +297,15 @@ export default function KelolaAkun() {
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
+                      {user.role === "owner" ? (
+                        <span className="text-gray-400">-</span>
+                      ) : (
+                        <span className="px-3 py-1 rounded-full bg-pink-100 text-pink-700 text-xs font-semibold">
+                          {user.nama_wilayah || "-"}
+                        </span>
+                      )}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
                       <span
                         className={`px-3 py-1 text-[10px] font-bold uppercase tracking-wider rounded-full ${
                           user.is_active == 1
@@ -314,6 +350,7 @@ export default function KelolaAkun() {
           </span>
         </div>
       </div>
+
       {/* MODAL TAMBAH USER */}
       {showModal && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
@@ -382,7 +419,27 @@ export default function KelolaAkun() {
                   <option value="ba">Business Analyst</option>
                 </select>
               </div>
+              {formData.role !== "owner" && (
+                <div>
+                  <label className="text-sm font-medium">Wilayah</label>
 
+                  <select
+                    name="id_wilayah"
+                    value={formData.id_wilayah}
+                    onChange={handleChange}
+                    required
+                    className="w-full mt-1 border rounded-lg px-3 py-2"
+                  >
+                    <option value="">Pilih Wilayah</option>
+
+                    {wilayah.map((item) => (
+                      <option key={item.id_wilayah} value={item.id_wilayah}>
+                        {item.nama_wilayah}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
               <div>
                 <label className="text-sm font-medium">Status</label>
 
@@ -410,6 +467,7 @@ export default function KelolaAkun() {
                       email: "",
                       password: "",
                       role: "ba",
+                      id_wilayah: "",
                       is_active: 1,
                     });
                   }}

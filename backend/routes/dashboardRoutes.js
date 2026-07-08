@@ -1,15 +1,12 @@
 import express from "express";
 
 import {
-    getDashboardOwner,
-    getDashboardSummary,
-    getDashboardChart
+  getDashboardOwner,
+  getDashboardSummary,
+  getDashboardChart,
 } from "../controllers/dashboardController.js";
 
-
 const router = express.Router();
-
-
 
 // =================================
 // GET DETAIL DATA PENJUALAN
@@ -17,13 +14,7 @@ const router = express.Router();
 // localhost:5000/api/dashboard/detail
 // =================================
 
-router.get(
-    "/detail",
-    getDashboardOwner
-);
-
-
-
+router.get("/detail", getDashboardOwner);
 
 // =================================
 // GET SUMMARY DASHBOARD
@@ -31,14 +22,8 @@ router.get(
 // localhost:5000/api/dashboard/summary
 // =================================
 
-router.get(
-    "/summary",
-    getDashboardSummary
-);
+router.get("/summary", getDashboardSummary);
 
-router.get(
-  "/chart",
-  getDashboardChart
-);
+router.get("/chart", getDashboardChart);
 
 export default router;

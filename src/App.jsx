@@ -11,6 +11,7 @@ const AuthLayout = React.lazy(() => import("./layouts/AuthLayout"));
 const Dashboard = React.lazy(() => import("./pages/Dashboard"));
 const DataPenjualan = React.lazy(() => import("./pages/DataPenjualan"));
 const InputPenjualan = React.lazy(() => import("./pages/InputPenjualan"));
+const Laporan = React.lazy(() => import("./pages/Laporan"));
 const KelolaAkun = React.lazy(() => import("./pages/KelolaAkun"));
 const Logout = React.lazy(() => import("./pages/Logout"));
 const NotFound = React.lazy(() => import("./pages/NotFound"));
@@ -68,7 +69,14 @@ export default function App() {
               </ProtectedRoute>
             }
           />
-
+          <Route
+            path="/laporan"
+            element={
+              <ProtectedRoute allowedRoles={["owner", "leader"]}>
+                <Laporan />
+              </ProtectedRoute>
+            }
+          />
           {/* Logout */}
           <Route
             path="/logout"

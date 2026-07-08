@@ -2,10 +2,9 @@ import { useEffect, useState } from "react";
 
 export default function DataPenjualan() {
   const [data, setData] = useState([]);
-
   const [loading, setLoading] = useState(true);
-
   const [search, setSearch] = useState("");
+
   const role = localStorage.getItem("role") || "owner";
 
   const isOwner = role === "owner";
@@ -16,10 +15,17 @@ export default function DataPenjualan() {
     getData();
   }, []);
 
+  // =============================
+  // GET DATA PENJUALAN
+  // =============================
   const getData = async () => {
     try {
+      const user = JSON.parse(localStorage.getItem("user"));
+
+      if (!user) return;
+
       const response = await fetch(
-        "http://localhost:5000/api/dashboard/detail",
+        `http://localhost:5000/api/dashboard/detail?id_user=${user.id_user}`,
       );
 
       const result = await response.json();
@@ -29,15 +35,21 @@ export default function DataPenjualan() {
       }
     } catch (error) {
       console.log(error);
+    } finally {
+      setLoading(false);
     }
-
-    setLoading(false);
   };
 
+  // =============================
+  // FORMAT RUPIAH
+  // =============================
   const formatRupiah = (angka) => {
     return "Rp " + Number(angka).toLocaleString("id-ID");
   };
 
+  // =============================
+  // SEARCH
+  // =============================
   const filteredData = data.filter((item) => {
     return (
       item.nama_produk.toLowerCase().includes(search.toLowerCase()) ||
@@ -61,15 +73,13 @@ export default function DataPenjualan() {
           </p>
         </div>
 
-        <div className="flex items-center gap-3">
-          <input
-            type="text"
-            placeholder="Cari produk..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="border rounded-lg px-4 py-2 w-72"
-          />
-        </div>
+        <input
+          type="text"
+          placeholder="Cari produk..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="border rounded-lg px-4 py-2 w-72"
+        />
       </div>
 
       <div className="bg-white rounded-xl shadow">
@@ -78,17 +88,13 @@ export default function DataPenjualan() {
             <thead>
               <tr className="bg-gray-100">
                 <th className="p-3">Tanggal</th>
-
                 <th className="p-3">Produk</th>
-
                 <th className="p-3">Brand</th>
 
                 {!isBA && <th className="p-3">Wilayah</th>}
 
                 <th className="p-3">Toko</th>
-
                 <th className="p-3">Qty</th>
-
                 <th className="p-3">Total</th>
               </tr>
             </thead>
@@ -97,7 +103,7 @@ export default function DataPenjualan() {
               {loading ? (
                 <tr>
                   <td
-                    colSpan={isOwner ? 8 : isBA ? 6 : 7}
+                    colSpan={isOwner ? 7 : isBA ? 6 : 7}
                     className="text-center p-6"
                   >
                     Loading...
@@ -106,7 +112,7 @@ export default function DataPenjualan() {
               ) : filteredData.length === 0 ? (
                 <tr>
                   <td
-                    colSpan={isOwner ? 8 : isBA ? 6 : 7}
+                    colSpan={isOwner ? 7 : isBA ? 6 : 7}
                     className="text-center p-6"
                   >
                     Tidak ada data
@@ -116,27 +122,30 @@ export default function DataPenjualan() {
                 filteredData.map((item) => (
                   <tr
                     key={item.id_penjualan}
-                    className="border-t hover:bg-gray-50"
+                    className="border-t hover:bg-pink-50 transition"
                   >
-                    {new Date(item.tanggal_penjualan).toLocaleDateString(
-                      "id-ID",
-                      {
-                        day: "2-digit",
-                        month: "long",
-                        year: "numeric",
-                      },
-                    )}
-                    <td className="p-3">{item.nama_produk}</td>
+                    <td className="p-3">
+                      {new Date(item.tanggal_penjualan).toLocaleDateString(
+                        "id-ID",
+                        {
+                          day: "2-digit",
+                          month: "long",
+                          year: "numeric",
+                        },
+                      )}
+                    </td>
 
+                    <td className="p-3">{item.nama_produk}</td>
                     <td className="p-3">{item.nama_brand}</td>
 
                     {!isBA && <td className="p-3">{item.nama_wilayah}</td>}
 
                     <td className="p-3">{item.nama_toko}</td>
+                    <td className="p-3">{item.jumlah} pcs</td>
 
-                    <td className="p-3">{item.jumlah}</td>
-
-                    <td className="p-3">{formatRupiah(item.total)}</td>
+                    <td className="p-3 font-semibold text-pink-600">
+                      {formatRupiah(item.total)}
+                    </td>
                   </tr>
                 ))
               )}

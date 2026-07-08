@@ -37,15 +37,18 @@ export default function Login() {
         {
           email: dataForm.email,
           password: dataForm.password,
-        }
+        },
       );
 
       if (response.data.success) {
         const user = response.data.user;
-
+        console.log("USER LOGIN:", user);
+        console.log(user);
         localStorage.setItem("user", JSON.stringify(user));
         localStorage.setItem("role", user.role);
         localStorage.setItem("nama", user.nama);
+        localStorage.setItem("id_wilayah", user.id_wilayah);
+        localStorage.setItem("nama_wilayah", user.nama_wilayah);
 
         navigate("/dashboard");
       } else {
@@ -64,12 +67,9 @@ export default function Login() {
 
   return (
     <div className="min-h-screen bg-[#FFF8FB] flex items-center justify-center px-6">
-
       <div className="w-full max-w-6xl bg-white rounded-[35px] overflow-hidden shadow-2xl grid lg:grid-cols-2">
-
         {/* KIRI */}
         <div className="bg-[#3A2946] flex flex-col justify-between p-12 text-white">
-
           <div>
             <h1 className="text-5xl font-bold">
               HEBEPKU<span className="text-pink-300">.</span>
@@ -81,32 +81,20 @@ export default function Login() {
           </div>
 
           <div className="flex justify-center my-8">
-            <img
-              src={loginImg}
-              alt="Login"
-              className="w-[350px]"
-            />
+            <img src={loginImg} alt="Login" className="w-[350px]" />
           </div>
 
           <p className="text-center text-pink-200 text-sm">
-            Kelola data penjualan skincare dengan mudah,
-            cepat, dan akurat.
+            Kelola data penjualan skincare dengan mudah, cepat, dan akurat.
           </p>
-
         </div>
 
         {/* KANAN */}
         <div className="bg-[#FDF8FB] flex items-center justify-center p-12">
-
           <div className="w-full max-w-md">
+            <h2 className="text-4xl font-bold text-[#3A2946]">Welcome Back</h2>
 
-            <h2 className="text-4xl font-bold text-[#3A2946]">
-              Welcome Back
-            </h2>
-
-            <p className="text-gray-500 mt-2 mb-8">
-              Sign in to your account
-            </p>
+            <p className="text-gray-500 mt-2 mb-8">Sign in to your account</p>
 
             {error && (
               <div className="flex items-center bg-red-100 border border-red-300 text-red-600 rounded-xl p-3 mb-4">
@@ -123,7 +111,6 @@ export default function Login() {
             )}
 
             <form onSubmit={handleSubmit} className="space-y-6">
-
               <div>
                 <label className="block mb-2 font-semibold text-[#3A2946]">
                   Email
@@ -141,13 +128,11 @@ export default function Login() {
               </div>
 
               <div>
-
                 <label className="block mb-2 font-semibold text-[#3A2946]">
                   Password
                 </label>
 
                 <div className="relative">
-
                   <input
                     type={showPassword ? "text" : "password"}
                     name="password"
@@ -165,9 +150,7 @@ export default function Login() {
                   >
                     {showPassword ? <FaEyeSlash /> : <FaEye />}
                   </button>
-
                 </div>
-
               </div>
 
               <button
@@ -177,7 +160,6 @@ export default function Login() {
               >
                 {loading ? "Loading..." : "Login"}
               </button>
-
             </form>
 
             <p className="text-center text-gray-500 text-sm mt-8">
@@ -187,13 +169,9 @@ export default function Login() {
             <p className="text-center text-xs text-gray-400 mt-4">
               © 2026 HEBEPKU
             </p>
-
           </div>
-
         </div>
-
       </div>
-
     </div>
   );
 }

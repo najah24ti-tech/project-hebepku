@@ -39,9 +39,12 @@ export const getPenjualan = (req, res) => {
 
   db.query(sql, (err, result) => {
     if (err) {
+      console.log(err);
+
       return res.status(500).json({
         success: false,
         message: err.message,
+        error: err,
       });
     }
 
@@ -51,18 +54,15 @@ export const getPenjualan = (req, res) => {
     });
   });
 };
+
 // ==============================
 // POST Tambah Penjualan
 // ==============================
 export const tambahPenjualan = (req, res) => {
-  console.log("DATA MASUK:");
-  console.log(req.body);
-
   const {
     id_user,
     id_kategori,
     id_brand,
-    id_wilayah,
     nama_produk,
     nama_toko,
     jumlah,
@@ -72,52 +72,89 @@ export const tambahPenjualan = (req, res) => {
 
   const total = jumlah * harga;
 
-  const sql = `
-    INSERT INTO penjualan
-    (
-      id_user,
-      id_kategori,
-      id_brand,
-      id_wilayah,
-      nama_produk,
-      nama_toko,
-      jumlah,
-      harga,
-      total,
-      tanggal_penjualan
-    )
-
-    VALUES (?,?,?,?,?,?,?,?,?,?)
+  // Ambil wilayah dari user yang login
+  const sqlUser = `
+    SELECT id_wilayah
+    FROM user
+    WHERE id_user = ?
   `;
 
-  db.query(
-    sql,
-    [
-      id_user,
-      id_kategori,
-      id_brand,
-      id_wilayah,
-      nama_produk,
-      nama_toko,
-      jumlah,
-      harga,
-      total,
-      tanggal_penjualan,
-    ],
+  db.query(sqlUser, [id_user], (err, userResult) => {
+    if (err) {
+      console.log(err);
 
-    (err, result) => {
-      if (err) {
-        return res.status(500).json({
-          success: false,
-          message: err.message,
-        });
-      }
-
-      res.json({
-        success: true,
-        message: "Data penjualan berhasil ditambahkan",
-        id_penjualan: result.insertId,
+      return res.status(500).json({
+        success: false,
+        message: err.message,
+        error: err,
       });
-    },
-  );
+    }
+
+    if (userResult.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "User tidak ditemukan",
+      });
+    }
+
+    const id_wilayah = userResult[0].id_wilayah;
+console.log({
+  id_user,
+  id_wilayah,
+  id_brand,
+  id_kategori,
+  nama_produk,
+  nama_toko,
+  jumlah,
+  harga,
+  total,
+  tanggal_penjualan,
+});
+    const sql = `
+      INSERT INTO penjualan
+      (
+        id_user,
+        id_kategori,
+        id_brand,
+        id_wilayah,
+        nama_produk,
+        nama_toko,
+        jumlah,
+        harga,
+        total,
+        tanggal_penjualan
+      )
+      VALUES (?,?,?,?,?,?,?,?,?,?)
+    `;
+
+    db.query(
+      sql,
+      [
+        id_user,
+        id_kategori,
+        id_brand,
+        id_wilayah,
+        nama_produk,
+        nama_toko,
+        jumlah,
+        harga,
+        total,
+        tanggal_penjualan,
+      ],
+      (err, result) => {
+        if (err) {
+          return res.status(500).json({
+            success: false,
+            message: err.message,
+          });
+        }
+
+        res.json({
+          success: true,
+          message: "Data penjualan berhasil ditambahkan",
+          id_penjualan: result.insertId,
+        });
+      },
+    );
+  });
 };

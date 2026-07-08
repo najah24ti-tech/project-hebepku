@@ -7,15 +7,19 @@ import bcrypt from "bcrypt";
 export const getUsers = (req, res) => {
   const sql = `
     SELECT
-      id_user,
-      nama,
-      email,
-      role,
-      is_active,
-      created_at,
-      updated_at
-    FROM user
-    ORDER BY id_user ASC
+      u.id_user,
+      u.nama,
+      u.email,
+      u.role,
+      u.id_wilayah,
+      w.nama_wilayah,
+      u.is_active,
+      u.created_at,
+      u.updated_at
+    FROM user u
+    LEFT JOIN wilayah w
+      ON u.id_wilayah = w.id_wilayah
+    ORDER BY u.id_user ASC
   `;
 
   db.query(sql, (err, result) => {
@@ -38,7 +42,9 @@ export const getUsers = (req, res) => {
 // =============================
 export const createUser = async (req, res) => {
   try {
-    const { nama, email, password, role, is_active } = req.body;
+    console.log(req.body);
+
+    const { nama, email, password, role, id_wilayah, is_active } = req.body;
 
     const cekEmail = "SELECT * FROM user WHERE email=?";
 
@@ -66,24 +72,29 @@ export const createUser = async (req, res) => {
           email,
           password,
           role,
+          id_wilayah,
           is_active
         )
-        VALUES (?,?,?,?,?)
+        VALUES (?,?,?,?,?,?)
       `;
 
-      db.query(sql, [nama, email, hashPassword, role, is_active], (err) => {
-        if (err) {
-          return res.status(500).json({
-            success: false,
-            message: err.message,
-          });
-        }
+      db.query(
+        sql,
+        [nama, email, hashPassword, role, id_wilayah || null, is_active],
+        (err) => {
+          if (err) {
+            return res.status(500).json({
+              success: false,
+              message: err.message,
+            });
+          }
 
-        res.json({
-          success: true,
-          message: "User berhasil ditambahkan",
-        });
-      });
+          res.json({
+            success: true,
+            message: "User berhasil ditambahkan",
+          });
+        },
+      );
     });
   } catch (error) {
     res.status(500).json({
@@ -99,7 +110,7 @@ export const createUser = async (req, res) => {
 export const updateUser = (req, res) => {
   const { id } = req.params;
 
-  const { nama, email, role, is_active } = req.body;
+  const { nama, email, role, id_wilayah, is_active } = req.body;
 
   const sql = `
     UPDATE user
@@ -107,23 +118,28 @@ export const updateUser = (req, res) => {
       nama=?,
       email=?,
       role=?,
+      id_wilayah=?,
       is_active=?
     WHERE id_user=?
   `;
 
-  db.query(sql, [nama, email, role, is_active, id], (err) => {
-    if (err) {
-      return res.status(500).json({
-        success: false,
-        message: err.message,
-      });
-    }
+  db.query(
+    sql,
+    [nama, email, role, id_wilayah || null, is_active, id],
+    (err) => {
+      if (err) {
+        return res.status(500).json({
+          success: false,
+          message: err.message,
+        });
+      }
 
-    res.json({
-      success: true,
-      message: "User berhasil diupdate",
-    });
-  });
+      res.json({
+        success: true,
+        message: "User berhasil diupdate",
+      });
+    },
+  );
 };
 
 // =============================

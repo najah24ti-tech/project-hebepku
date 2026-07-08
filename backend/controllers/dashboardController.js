@@ -5,40 +5,15 @@ import db from "../config/db.js";
 // ======================================
 
 export const getDashboardOwner = (req, res) => {
-  const sql = `
-        SELECT
-    p.id_penjualan,
-    p.id_user,
-    p.tanggal_penjualan,
-    p.nama_produk,
-    p.nama_toko,
-    p.jumlah,
-    p.total,
+  const { id_user } = req.query;
 
-    b.nama_brand,
-    w.nama_wilayah,
-    k.nama_kategori,
+  const sqlUser = `
+    SELECT role, id_wilayah
+    FROM user
+    WHERE id_user = ?
+  `;
 
-    u.nama AS nama_ba
-
-        FROM penjualan p
-
-        JOIN brand b
-            ON p.id_brand = b.id_brand
-
-        JOIN kategori k
-            ON p.id_kategori = k.id_kategori
-
-        JOIN wilayah w
-            ON p.id_wilayah = w.id_wilayah
-
-        JOIN user u
-            ON p.id_user = u.id_user
-
-        ORDER BY p.tanggal_penjualan DESC
-    `;
-
-  db.query(sql, (err, result) => {
+  db.query(sqlUser, [id_user], (err, userResult) => {
     if (err) {
       return res.status(500).json({
         success: false,
@@ -46,13 +21,71 @@ export const getDashboardOwner = (req, res) => {
       });
     }
 
-    res.json({
-      success: true,
-      data: result,
+    if (userResult.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "User tidak ditemukan",
+      });
+    }
+
+    const user = userResult[0];
+
+    let sql = `
+      SELECT
+        p.id_penjualan,
+        p.id_user,
+        p.tanggal_penjualan,
+        p.nama_produk,
+        p.nama_toko,
+        p.jumlah,
+        p.total,
+
+        b.nama_brand,
+        w.nama_wilayah,
+        k.nama_kategori,
+
+        u.nama AS nama_ba
+
+      FROM penjualan p
+
+      JOIN brand b
+      ON p.id_brand = b.id_brand
+
+      JOIN kategori k
+      ON p.id_kategori = k.id_kategori
+
+      JOIN wilayah w
+      ON p.id_wilayah = w.id_wilayah
+
+      JOIN user u
+      ON p.id_user = u.id_user
+    `;
+
+    const params = [];
+
+    // Leader dan BA hanya melihat wilayahnya sendiri
+    if (user.role === "leader" || user.role === "ba") {
+      sql += ` WHERE p.id_wilayah = ? `;
+      params.push(user.id_wilayah);
+    }
+
+    sql += ` ORDER BY p.tanggal_penjualan DESC`;
+
+    db.query(sql, params, (err, result) => {
+      if (err) {
+        return res.status(500).json({
+          success: false,
+          message: err.message,
+        });
+      }
+
+      res.json({
+        success: true,
+        data: result,
+      });
     });
   });
 };
-
 // ===============================
 // GRAFIK PENJUALAN BULANAN OWNER
 // ===============================

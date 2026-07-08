@@ -13,7 +13,14 @@ import {
   ResponsiveContainer,
 } from "recharts";
 
-import { FaDollarSign, FaBox, FaChevronDown } from "react-icons/fa";
+import {
+  FaDollarSign,
+  FaBox,
+  FaChevronDown,
+  FaStore,
+  FaMapMarkerAlt,
+  FaTags,
+} from "react-icons/fa";
 
 export default function Dashboard() {
   // ===========================
@@ -61,7 +68,9 @@ export default function Dashboard() {
   // ===========================
 
   useEffect(() => {
-    fetch("http://localhost:5000/api/dashboard/detail")
+    const user = JSON.parse(localStorage.getItem("user"));
+
+    fetch(`http://localhost:5000/api/dashboard/detail?id_user=${user.id_user}`)
       .then((res) => res.json())
       .then((result) => {
         if (result.success) {
@@ -91,7 +100,9 @@ export default function Dashboard() {
   // ===========================
 
   useEffect(() => {
-    fetch("http://localhost:5000/api/dashboard/summary")
+    const user = JSON.parse(localStorage.getItem("user"));
+
+    fetch(`http://localhost:5000/api/dashboard/summary?id_user=${user.id_user}`)
       .then((res) => res.json())
       .then((result) => {
         if (result.success) {
@@ -100,13 +111,14 @@ export default function Dashboard() {
       })
       .catch(console.log);
   }, []);
-
   // ===========================
   // GET CHART
   // ===========================
 
   useEffect(() => {
-    fetch("http://localhost:5000/api/dashboard/chart")
+    const user = JSON.parse(localStorage.getItem("user"));
+
+    fetch(`http://localhost:5000/api/dashboard/chart?id_user=${user.id_user}`)
       .then((res) => res.json())
       .then((result) => {
         if (result.success) {
@@ -196,6 +208,104 @@ export default function Dashboard() {
     0,
   );
 
+  // ===========================
+  // TOP 5 PRODUK
+  // ===========================
+
+  const topProduk = useMemo(() => {
+    const data = {};
+
+    filteredData.forEach((item) => {
+      if (!data[item.nama_produk]) {
+        data[item.nama_produk] = 0;
+      }
+
+      data[item.nama_produk] += Number(item.total);
+    });
+
+    return Object.entries(data)
+      .map(([nama, total]) => ({ nama, total }))
+      .sort((a, b) => b.total - a.total)
+      .slice(0, 5);
+  }, [filteredData]);
+
+  // ===========================
+  // TOP 5 BRAND
+  // ===========================
+
+  const topBrand = useMemo(() => {
+    const data = {};
+
+    filteredData.forEach((item) => {
+      if (!data[item.nama_brand]) {
+        data[item.nama_brand] = 0;
+      }
+
+      data[item.nama_brand] += Number(item.total);
+    });
+
+    return Object.entries(data)
+      .map(([nama, total]) => ({ nama, total }))
+      .sort((a, b) => b.total - a.total)
+      .slice(0, 5);
+  }, [filteredData]);
+
+  // ===========================
+  // TOP 5 WILAYAH
+  // ===========================
+  const topWilayah = useMemo(() => {
+    const data = {};
+
+    filteredData.forEach((item) => {
+      if (!data[item.nama_wilayah]) {
+        data[item.nama_wilayah] = 0;
+      }
+
+      data[item.nama_wilayah] += Number(item.total);
+    });
+
+    return Object.entries(data)
+      .map(([nama, total]) => ({ nama, total }))
+      .sort((a, b) => b.total - a.total)
+      .slice(0, 5);
+  }, [filteredData]);
+
+  // ===========================
+  // TOP 5 BUSINESS ANALYST
+  // ===========================
+  const topBA = useMemo(() => {
+    const data = {};
+
+    filteredData.forEach((item) => {
+      if (!data[item.nama_ba]) {
+        data[item.nama_ba] = 0;
+      }
+
+      data[item.nama_ba] += Number(item.total);
+    });
+
+    return Object.entries(data)
+      .map(([nama, total]) => ({ nama, total }))
+      .sort((a, b) => b.total - a.total)
+      .slice(0, 5);
+  }, [filteredData]);
+
+  // ===========================
+  // OWNER KPI
+  // ===========================
+
+  const totalBrand = new Set(filteredData.map((item) => item.nama_brand)).size;
+
+  const totalWilayah = new Set(filteredData.map((item) => item.nama_wilayah))
+    .size;
+
+  const totalToko = new Set(filteredData.map((item) => item.nama_toko)).size;
+
+  const recentSales = [...filteredData]
+    .sort(
+      (a, b) => new Date(b.tanggal_penjualan) - new Date(a.tanggal_penjualan),
+    )
+    .slice(0, 5);
   // ===========================
   // FORMAT RUPIAH
   // ===========================
@@ -394,7 +504,7 @@ outline-none
       {/* ================= CARD ================= */}
 
       {!isBA ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-5 gap-5 mb-8">
           {/* Total Penjualan */}
           <div className="bg-white rounded-3xl border border-pink-100 shadow-md p-6 hover:shadow-xl transition duration-300">
             <div className="flex items-center justify-between">
@@ -430,6 +540,44 @@ outline-none
                   </h2>
                 </div>
               </div>
+            </div>
+          </div>
+          {/* Total Brand */}
+
+          <div className="bg-white rounded-2xl shadow-md p-5 flex items-center gap-4">
+            <div className="w-16 h-16 rounded-2xl bg-blue-100 flex items-center justify-center">
+              <FaTags className="text-3xl text-blue-600" />
+            </div>
+
+            <div>
+              <p className="text-sm text-gray-500">Total Brand</p>
+              <h2 className="text-4xl font-bold">{totalBrand}</h2>
+            </div>
+          </div>
+
+          {/* Total Wilayah */}
+
+          <div className="bg-white rounded-2xl shadow-md p-5 flex items-center gap-4">
+            <div className="w-16 h-16 rounded-2xl bg-green-100 flex items-center justify-center">
+              <FaMapMarkerAlt className="text-3xl text-green-600" />
+            </div>
+
+            <div>
+              <p className="text-sm text-gray-500">Total Wilayah</p>
+              <h2 className="text-4xl font-bold">{totalWilayah}</h2>
+            </div>
+          </div>
+
+          {/* Total Toko */}
+
+          <div className="bg-white rounded-2xl shadow-md p-5 flex items-center gap-4">
+            <div className="w-16 h-16 rounded-2xl bg-orange-100 flex items-center justify-center">
+              <FaStore className="text-3xl text-orange-600" />
+            </div>
+
+            <div>
+              <p className="text-sm text-gray-500">Total Toko</p>
+              <h2 className="text-4xl font-bold">{totalToko}</h2>
             </div>
           </div>
         </div>
@@ -491,13 +639,13 @@ outline-none
       {/* ================= GRAFIK ================= */}
 
       {!isBA ? (
-        <div className="bg-white rounded-xl shadow p-6 mb-8">
+        <div className="bg-white rounded-2xl shadow p-6 mb-8">
           <h2 className="text-xl font-bold mb-5">Grafik Penjualan Bulanan</h2>
 
           <div
             style={{
               width: "100%",
-              height: 350,
+              height: 280,
             }}
           >
             <ResponsiveContainer>
@@ -553,6 +701,88 @@ outline-none
         </div>
       )}
 
+      {!isBA && (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+          {/* TOP PRODUK */}
+          <div className="bg-white rounded-2xl shadow-md p-6">
+            <h2 className="text-lg font-bold mb-5 text-[#2F243A]">
+              Top 5 Produk
+            </h2>
+
+            <div className="space-y-4">
+              {topProduk.map((item, index) => (
+                <div key={index} className="flex justify-between border-b pb-3">
+                  <span>{item.nama}</span>
+
+                  <span className="font-semibold text-pink-600">
+                    {formatRupiah(item.total)}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* TOP BRAND */}
+          <div className="bg-white rounded-2xl shadow-md p-6">
+            <h2 className="text-lg font-bold mb-5 text-[#2F243A]">
+              Top 5 Brand
+            </h2>
+
+            <div className="space-y-4">
+              {topBrand.map((item, index) => (
+                <div key={index} className="flex justify-between border-b pb-3">
+                  <span>{item.nama}</span>
+
+                  <span className="font-semibold text-violet-600">
+                    {formatRupiah(item.total)}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ================= TOP WILAYAH & TOP BA ================= */}
+
+      {isOwner && (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+          {/* TOP WILAYAH */}
+          <div className="bg-white rounded-2xl shadow-md p-6">
+            <h2 className="text-lg font-bold mb-5">Top 5 Wilayah</h2>
+
+            <div className="space-y-3">
+              {topWilayah.map((item, index) => (
+                <div key={index} className="flex justify-between border-b pb-2">
+                  <span>{item.nama}</span>
+
+                  <span className="font-semibold text-blue-600">
+                    {formatRupiah(item.total)}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* TOP BA */}
+          <div className="bg-white rounded-2xl shadow-md p-6">
+            <h2 className="text-lg font-bold mb-5">Top 5 Business Analyst</h2>
+
+            <div className="space-y-3">
+              {topBA.map((item, index) => (
+                <div key={index} className="flex justify-between border-b pb-2">
+                  <span>{item.nama}</span>
+
+                  <span className="font-semibold text-green-600">
+                    {formatRupiah(item.total)}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* ================= TABEL ================= */}
       {isBA && (
         <p className="text-sm text-gray-500 mb-4">
@@ -560,88 +790,40 @@ outline-none
         </p>
       )}
 
-      <div className="bg-white rounded-xl shadow p-6">
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-bold">
-            {isOwner
-              ? "Semua Data Penjualan"
-              : isLeader
-                ? "Data Penjualan Wilayah"
-                : "Data Penjualan Saya"}
-          </h2>
+      {isOwner && (
+        <div className="bg-white rounded-2xl shadow-md p-6">
+          <h2 className="text-xl font-bold mb-5">Penjualan Terbaru</h2>
 
-          {(isOwner || isLeader) && (
-            <button
-              onClick={exportExcel}
-              className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg"
-            >
-              Export Excel
-            </button>
-          )}
-        </div>
+          <div className="space-y-4">
+            {recentSales.map((item) => (
+              <div
+                key={item.id_penjualan}
+                className="flex justify-between border-b pb-3"
+              >
+                <div>
+                  <p className="font-semibold">{item.nama_produk}</p>
 
-        <div className="overflow-x-auto">
-          <table className="w-full border-collapse">
-            <thead>
-              <tr className="bg-[#FCE7EF]">
-                <th className="border p-2">Tanggal</th>
+                  <p className="text-sm text-gray-500">
+                    {item.nama_brand} • {item.nama_wilayah}
+                  </p>
+                </div>
 
-                <th className="border p-2">Produk</th>
+                <div className="text-right">
+                  <p className="font-bold text-pink-600">
+                    {formatRupiah(item.total)}
+                  </p>
 
-                <th className="border p-2">Toko</th>
-
-                <th className="border p-2">Brand</th>
-
-                {!isBA && <th className="border p-2">Wilayah</th>}
-
-                <th className="border p-2 text-right">Jumlah</th>
-
-                <th className="border p-2 text-right">Total</th>
-              </tr>
-            </thead>
-
-            <tbody>
-              {filteredData.length === 0 ? (
-                <tr>
-                  <td colSpan={isBA ? 6 : 7} className="text-center border p-6">
-                    Tidak ada data
-                  </td>
-                </tr>
-              ) : (
-                filteredData.map((item) => (
-                  <tr key={item.id_penjualan} className="hover:bg-pink-50">
-                    <td className="border px-4 py-3 text-center">
-                      {new Date(item.tanggal_penjualan).toLocaleDateString(
-                        "id-ID",
-                        {
-                          day: "2-digit",
-                          month: "long",
-                          year: "numeric",
-                        },
-                      )}
-                    </td>
-                    <td className="border p-2">{item.nama_produk}</td>
-
-                    <td className="border p-2">{item.nama_toko}</td>
-
-                    <td className="border p-2">{item.nama_brand}</td>
-
-                    {!isBA && (
-                      <td className="border p-2">{item.nama_wilayah}</td>
+                  <p className="text-sm text-gray-500">
+                    {new Date(item.tanggal_penjualan).toLocaleDateString(
+                      "id-ID",
                     )}
-
-                    <td className="border p-2 text-right">{item.jumlah}</td>
-
-                    <td className="border p-2 text-right">
-                      {formatRupiah(item.total)}
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }

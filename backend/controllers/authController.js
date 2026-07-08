@@ -14,8 +14,26 @@ export const login = (req, res) => {
     });
   }
 
-  const sql = "SELECT * FROM user WHERE email = ?";
+  const sql = `
+SELECT
+    u.id_user,
+    u.nama,
+    u.email,
+    u.password,
+    u.role,
+    u.id_wilayah,
+    u.is_active,
+    u.created_at,
+    u.updated_at,
+    w.nama_wilayah
 
+FROM user u
+
+LEFT JOIN wilayah w
+ON u.id_wilayah = w.id_wilayah
+
+WHERE u.email = ?
+`;
   db.query(sql, [email], async (err, result) => {
     if (err) {
       return res.status(500).json({
@@ -32,7 +50,14 @@ export const login = (req, res) => {
     }
 
     const user = result[0];
-
+    console.log("HASIL LOGIN:");
+    console.log(user);
+    if (user.is_active == 0) {
+      return res.status(403).json({
+        success: false,
+        message: "Akun tidak aktif",
+      });
+    }
     // Bandingkan password
     const isMatch = await bcrypt.compare(password, user.password);
 

@@ -9,6 +9,7 @@ import brandRoutes from "./routes/brandRoutes.js";
 import wilayahRoutes from "./routes/wilayahRoutes.js";
 import kategoriRoutes from "./routes/kategoriRoutes.js";
 import penjualanRoutes from "./routes/penjualanRoutes.js";
+import laporanRoutes from "./routes/laporanRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
 import authRoutes from "./routes/authRoutes.js";
 
@@ -37,6 +38,7 @@ app.use("/api/brand", brandRoutes);
 app.use("/api/wilayah", wilayahRoutes);
 app.use("/api/kategori", kategoriRoutes);
 app.use("/api/penjualan", penjualanRoutes);
+app.use("/api/laporan", laporanRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/auth", authRoutes);
 
