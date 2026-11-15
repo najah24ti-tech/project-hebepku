@@ -1,7 +1,10 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import { BsFillExclamationDiamondFill, BsFillCheckCircleFill } from "react-icons/bs";
+import {
+  BsFillExclamationDiamondFill,
+  BsFillCheckCircleFill,
+} from "react-icons/bs";
 import { ImSpinner2 } from "react-icons/im";
 
 export default function Register() {
@@ -47,7 +50,7 @@ export default function Register() {
           email: dataForm.email,
           password: dataForm.password,
           role: dataForm.role,
-        }
+        },
       );
 
       if (response.data.success) {
@@ -75,14 +78,11 @@ export default function Register() {
   return (
     <div className="min-h-screen flex justify-center items-center bg-gray-100 px-4">
       <div className="bg-white w-full max-w-md p-6 rounded-2xl shadow-lg">
-
         <h2 className="text-3xl font-bold text-center mb-2">
           HEBEPKU<span className="text-green-500">.</span>
         </h2>
 
-        <p className="text-center text-gray-500 mb-6">
-          Buat Akun Baru
-        </p>
+        <p className="text-center text-gray-500 mb-6">Buat Akun Baru</p>
 
         {error && (
           <div className="flex items-center bg-red-100 border border-red-300 text-red-700 rounded-xl p-3 mb-4">
@@ -106,11 +106,8 @@ export default function Register() {
         )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
-
           <div>
-            <label className="block mb-2 font-medium">
-              Nama
-            </label>
+            <label className="block mb-2 font-medium">Nama</label>
 
             <input
               type="text"
@@ -124,9 +121,7 @@ export default function Register() {
           </div>
 
           <div>
-            <label className="block mb-2 font-medium">
-              Email
-            </label>
+            <label className="block mb-2 font-medium">Email</label>
 
             <input
               type="email"
@@ -140,9 +135,7 @@ export default function Register() {
           </div>
 
           <div>
-            <label className="block mb-2 font-medium">
-              Password
-            </label>
+            <label className="block mb-2 font-medium">Password</label>
 
             <input
               type="password"
@@ -172,9 +165,7 @@ export default function Register() {
           </div>
 
           <div>
-            <label className="block mb-2 font-medium">
-              Role
-            </label>
+            <label className="block mb-2 font-medium">Role</label>
 
             <select
               name="role"
@@ -199,9 +190,7 @@ export default function Register() {
           >
             {loading ? "Loading..." : "Register"}
           </button>
-
         </form>
-
       </div>
     </div>
   );

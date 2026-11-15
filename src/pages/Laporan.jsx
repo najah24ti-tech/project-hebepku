@@ -77,6 +77,9 @@ export default function Laporan() {
     });
   };
 
+  const exportExcel = () => {
+    window.open("http://localhost:5000/api/laporan/export", "_blank");
+  };
   console.log(kategori);
   const kategoriChart = kategori.map((item) => ({
     ...item,
@@ -109,7 +112,10 @@ export default function Laporan() {
             Filter
           </button>
 
-          <button className="bg-green-500 hover:bg-green-600 text-white px-6 py-3 rounded-xl transition ml-auto">
+          <button
+            onClick={exportExcel}
+            className="bg-green-500 hover:bg-green-600 text-white px-6 py-3 rounded-xl transition ml-auto"
+          >
             Export Excel
           </button>
         </div>
